@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {% block meta_description %}<meta name="description" content="Nachrichten Online Archive durchsuchen und Artikel finden">{% endblock %}
+        {% block meta_keywords %}<meta name="keywords" content="Archiv, Suche, Artikel">{% endblock %}
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="icon" type="image/x-icon" href="{{asset('/favicon.png')}}">
+        <script src="{{asset('/js/jquery-3.7.1.min.js')}}"></script>
+        <script type="module" src="{{asset('/js/app.js')}}"></script>
+        {% block stylesheet %}<link rel="stylesheet" href="{{asset('/css/home.css')}}"/>{% endblock %}
+        <link rel="stylesheet" href="{{asset('/css/styles.css')}}"/>
+
+        {% block javascripts %}
+        {% endblock %}
+    </head>
+    <body>
+        <div class="content">
+            {% block navigation %}
+                {% include '@layouts/navigation.html.twig' %}
+            {% endblock %}
+            {% block header %}{% endblock %}
+            {% block main %}{% endblock %}
+            {% block footer %}
+                {% include '@layouts/footer.html.twig' %}
+            {% endblock %}
+        </div>
+    </body>
+</html>

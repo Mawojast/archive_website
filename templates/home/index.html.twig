@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Archive: Suche nach Informationen in Archiven{% endblock %}
+
+{% block header %}
+    <header>
+        <h1 class="header-headline">archive.click</h1>
+        <p>Nutze die Archivsuche, um gezielt nach relevanten Inhalten zu suchen und wertvolle Informationen zu finden.</p>
+    </header>
+{% endblock %}
+
+{% block main %}
+    <main>
+        
+        <div class="archive-list">
+            
+                <a href="{{path('app_archive', {archive: 'spiegel'})}}">
+                    <div class="archive-item">
+                        <p>Spiegel</p>
+                    </div>
+                </a>
+            
+            
+                <a href="{{path('app_archive', {archive: 'tagesschau'})}}">
+                    <div class="archive-item">
+                        <p>Tagesschau</p>
+                    </div>
+                </a>
+
+            
+        </div>
+    </main>
+{% endblock %}

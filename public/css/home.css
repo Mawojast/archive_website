@@ -1,0 +1,134 @@
+:root {
+    --background-color: #222222;
+    --clickable-background-color: #FF6E1F;
+    --clickable-font-color: #222222;
+    --font-color: #f2f2f2;
+    --header-border-bottom: #2b2b2b;
+    --max-width: 55rem;
+}
+
+* {
+    /* border: 1px solid red; */
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-weight: 700;
+}
+
+
+body {
+    background-color: var(--background-color);
+    font-family: "sans-serif", "Courier New", monospace;
+    display: flex;
+    justify-content: center;
+
+    .content{
+        max-width: var(--max-width);
+        padding: 0rem 0.5rem 1rem 0.5rem;
+        /* height: 100vh;  */
+        display: grid;
+        grid-template-areas:
+            "nav nav nav"
+            "head head head"
+            "content content content"
+            "footer footer footer";
+        grid-template-rows: 100px 200px auto 50px;
+        justify-content: center;
+        align-items: center;
+
+        /**
+        * Navigation
+        * styles.css
+        **/
+        
+        /**
+        * Header
+        * styles.css
+        **/
+
+        /**
+        * Main
+        **/
+        main {
+            grid-area:content;
+            .error-page-text-box {
+                color: var(--font-color);
+                text-align: center;
+                p {
+                    padding: 0rem 0 0rem 0;
+                    font-size: 1.9rem;
+                }
+            }
+            .archive-list {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 2rem;
+                justify-content: space-around;
+            
+                a {
+                    
+                    text-decoration: none;
+                    font-size: 1.5rem;
+                    font-weight: 900;
+                    color: var(--clickable-font-color);
+                    
+                    .archive-item {
+                        padding: 1rem 1rem 1rem 1rem;
+                        text-align: center;
+                        background-color: var(--clickable-background-color);
+                        width: 20rem;
+                    }
+                }
+                
+            }
+        }
+
+        /**
+        * Footer
+        **/
+        footer{
+            grid-area: footer;
+            display: flex;
+            justify-content: end;
+            width: 100%;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            padding-bottom: 0.5rem;
+            text-align: right; 
+            background-color: var(--background-color);
+            padding-right: 1rem;
+            ul {
+                display: flex;
+                flex-direction: row;
+                list-style-type: none;
+                a{
+                    padding: 0 0 0 1rem;
+                    font-size: 1rem;
+                    text-decoration: none;
+                    color: var(--font-color)
+                }
+            }
+        }
+    }
+}
+
+/* Responsiveness: Burger-Icon auf mobilen Geräten anzeigen */
+@media (max-width: 768px) {
+    body {
+        .content {
+            .header-nav {
+                .menu {
+                    display: none;
+                }
+                .burger-menu {
+                    display: block;
+                }
+                #theme-switch-desktop {
+                    display: none;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,268 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Archiv - {{archive | capitalize}}{% endblock %}
+{% block stylesheet %}<link rel="stylesheet" href="{{asset('/css/archive.css')}}"/>{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ archive|capitalize }} Nachrichten Online Archive durchsuchen und Artikel finden">{% endblock %}
+{% block meta_keywords %}<meta name="keywords" content="{{ archive|capitalize }}, Archiv, Suche, Artikel">{% endblock %}
+
+
+{% block header %}
+    <header>
+        <div class="headline">
+            <h1>{{archive | capitalize}}</h1>
+            <p class="header-paragraph"> 
+                Geben Sie Suchbegriffe ein, legen Sie einen Zeitraum fest, und wählen Sie eine Sortierung, 
+                um die besten Suchergebnisse zu erhalten. Mit erweiterten Sucheinstellungen können Sie Ihre Suche zudem weiter verfeinern.
+            </p>
+        </div>
+    </header>
+{% endblock %}
+{% block main %}
+    <main>
+    <div class="search-form">
+        <form action="{{ path('app_archive_search') }}" method="POST" id="search_form">
+            <div class="text-search-input">
+                {{ form_widget(form.search) }}
+            </div>
+            <div class="input-container container-fill">
+                <div class="date-input input-element">
+                    <div class="date-label-box date-box">
+                        {{ form_label(form.start_date, null, {'label_attr': {'class': 'date-label'}}) }}
+                    </div>
+                    <div class="date-input-box date-box">
+                        {{ form_widget(form.start_date) }}
+                    </div>
+                </div>
+                <div class="date-input input-element">
+                    <div class="date-label-box date-box">
+                        {{ form_label(form.end_date, null, {'label_attr': {'class': 'date-label'}}) }}
+                    </div>
+                    <div class="date-input-box date-box">
+                        {{ form_widget(form.end_date) }}
+                    </div>
+                </div>
+                <div class="order-input-box input-element">
+                    <div class="order-label-box order-box">
+                    {{ form_label(form.order, null, {'label_attr': {'class': 'order-label'}}) }}
+                    </div>
+                    <div class="order-input-box order-box">
+                    {{ form_widget(form.order, {'attr': {'class': 'input-box', 'id': 'order'}}) }}
+                    </div>
+                </div>
+                <input type="hidden" name="{{ field_name(form.form_token) }}" value="{{ field_value(form.form_token) }}">
+                <div class="form-submit-box input-element">
+                    <input type="submit" value="Suchen">
+                </div>  
+            </div>
+        </form>
+        <div class="form-options">
+            <button class="accordion"><span id="form-option-toggle-icon">&plus;</span><label>Sucheinstellungen</label></button>
+            <div class="panel">
+                <div class="form_extension">
+                {{ form_widget(form.option[0], {'attr': {'form': 'search_form'}}) }}
+                {{ form_label(form.option[0]) }}
+                <p class="option-text-example"><u>Korallenriff</u> <u>Ökosystemdienstleistung</u> <u>Trinkwasser</u></p>   
+                {{ form_widget(form.option[1], {'attr': {'form': 'search_form'}}) }}
+                {{ form_label(form.option[1]) }}
+                <p class="option-text-example"><u>Korallen</u>riff <u>Ökosystem</u>dienstleistung Trink<u>wasser</u></p>
+                </div>
+            </div> 
+        </div>
+    </div>
+    <div id="searching-info">
+        <div id="loading-box">
+            <p><button type="button" id="cancel-request-button" title="Suche abbrechen">&#9932;</button>Suche läuft<span id="loading-text">....</span></p>
+            
+        </div>
+        <div id="canceled-box"></div>
+    </div> 
+    <div id="result">
+        <div id="result-data"></div>
+        <ul id="result-list">
+        </ul>
+    </div>
+    <button type="button" id="scroll-to-top" class="btn">&#8593</button>
+    </main>
+    <script type="module" nonce="{{ csp_nonce('script') }}">
+        /**
+        * Form options as accordion behaviour
+        */
+        $(document).ready(function(){
+            $(".accordion").click(function() {
+
+                $(this).toggleClass("active");
+                const icon = $("#form-option-toggle-icon");
+                const panel = $(this).next();
+                const form_extension_height = $(".form_extension").height();
+
+                if (panel.css("maxHeight") !== "0px") {
+                    icon.html("&plus;");
+                    panel.css("maxHeight", "0px");
+                } else {
+                    const form_extension_height = $(".form_extension").height();
+                    const panelHeight = form_extension_height + 100;
+                    //panel.prop('scrollHeight')
+                    icon.html("&minus;");
+                    panel.css("maxHeight", panelHeight + "px");
+                }
+            });
+        });
+    </script>
+
+    <script type="module" nonce="{{ csp_nonce('script') }}">
+        /**
+        * Show or hide scroll up button
+        */
+        $(document).ready(function() {
+        
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 100) {
+                    $('#scroll-to-top').fadeIn();
+                } else {
+                    $('#scroll-to-top').fadeOut();
+                }
+            });
+
+            // Scroll to top on button click
+            $('#scroll-to-top').click(function() {
+                $('html, body').animate({scrollTop : 0}, 10);
+                return false;
+            });
+        });
+    </script>
+
+    <script type="module" nonce="{{ csp_nonce('script') }}">
+        /**
+        * Form request handling. Displays loading box and text
+        */
+        $("#loading-box").hide();
+        var loadingText = function amimateLoadingText() {
+            let textElement = $("#loading-text");
+            let text = textElement[0].innerText;
+            let point = false;
+            return setInterval(function () {
+                if (point === false) {
+                    text = text.slice(0, -1);
+                    point = !point;
+                } else {
+                    text += '.';
+                    point = !point;
+                }
+                textElement[0].innerText = text;
+            }, 800);
+        };
+
+        /**
+        * Event-Listener form submit
+        */
+        try {
+            let posting = null;
+            $("#search_form").on("submit", function (event) {
+                // prevents the form from being submitted by default
+                event.preventDefault();
+                $("footer").css('position', 'fixed');
+
+                // Clear result elements by clicking form submit button
+                $("#result-list").empty();
+                $("#result-data").empty();
+                $("#canceled-box").empty();
+
+                // Loading text is shown while until post request is done
+                $("#loading-box").show();
+                loadingText();
+
+                // Capure form datas in json format
+                var $form = $(this);
+                let url = $form.attr("action");
+                let post_data = {
+                    archive_search: {
+                        start_date: $form.find("input[name='archive_search[start_date]']").val(),
+                        end_date: $form.find("input[name='archive_search[end_date]']").val(),
+                        search: $form.find("input[name='archive_search[search]']").val(),
+                        order: $("select[name='archive_search[order]'] option:selected").val(),
+                        option: $("input[type=radio][name='archive_search[option]']:checked").val(),
+                        form_token: $form.find("input[name='archive_search[form_token]']").val(),
+                    }
+                };
+
+                posting = $.post(url, post_data);
+
+                posting.done(function (response) {
+                    // Hide html elements which are shown while posting is requsting
+                    $("#loading-box").hide();
+                    $("#canceled-box").hide();
+                    if (response.errors.count > 0) {
+
+                        // Creating error messages
+                        for (var i = 0; i < response.errors.list.length; i++) {
+                            $("#result-list").append('<li><p class="error-text">' + response.errors.list[i] + '</p></li>');
+                        }
+
+                    } else {
+
+                        // append result data to result overview
+                        const dates = [new Date(response.start_date), new Date(response.end_date)];
+                        const prompt_start_date = dates[0].getDate() + '.' + (dates[0].getMonth() + 1) + '.' + dates[0].getFullYear();
+                        const prompt_end_date = dates[1].getDate() + '.' + (dates[1].getMonth() + 1) + '.' + dates[1].getFullYear();
+                        $("#result-data").empty();
+                        $("#result-data").append('<div class="result-data" id="result-search">Suche: "' + response.search + '" <span>(' + prompt_start_date + ' - ' + prompt_end_date + ')</span></div>');
+
+                        // Result limit was reached. Create hint to inform
+                        if(response.data.max_count_reached.status){
+                            const date = new Date(response.data.max_count_reached.end_date);
+                            const prompt_max_reached_end_date = date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
+                            $("#result-data").append('<div class="result-data max-result-data" id="result-length">Maximale Ergebnisse erreicht: ' + response.data.count + '</div>');
+                            $("#result-data").append('<div class="result-data max-result-data">Letztes Datum: ' + prompt_max_reached_end_date +'</div>');
+                        }else{
+                            $("#result-data").append('<div class="result-data" id="result-length">Ergebnisse: ' + response.data.count + '</div>');
+                        }
+
+                        // append article items to result list
+                        $("#result-list").empty();
+                        response.data.list.forEach(function (element) {
+                            const date = new Date(element.date);
+                            const article_date = date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
+                            $("#result-list").append('<li> <h3>' + element.headline + '</h3><a href="' + element.report_url + '" target="_blank">' + element.report_url + '</a><div class="date"><small>' + article_date + '</small></div></li>');
+                        });
+                    }
+
+                    (response.data.count > 10) ? $("footer").css('position', 'relative') : $("footer").css('position', 'fixed'); 
+                    posting = null;
+
+
+                }).fail(function (response) {
+                    $("#searching-info").hide();
+                    if(posting.status === 0) return;
+                    posting = null;
+                    alert('Die Anfrage ist fehlgeschlagen.');
+                });
+                clearInterval(loadingText);
+
+            });
+
+            // Stop Ajax request by clicking cancel button
+            $("#cancel-request-button").on("click", function () {
+                if (posting) {
+                    posting.abort();  
+                    $("#loading-box").hide();
+                    $("#searching-info").show();
+                    $("#canceled-box").append("<br><p>Suche abgebrochen</p>");
+                }
+            });
+
+            // Stop Ajax request by clicking links
+            $("#archive-link").on("click", function (event) {
+                event.preventDefault(); 
+                if (posting) {
+                    posting.abort(); 
+                    posting = null;
+                }
+                const targetUrl = $(this).attr("href"); 
+                window.location.href = targetUrl; 
+            });
+
+        } catch (e) {
+            alert('Es ist ein Fehler aufgetreten.');
+        } 
+</script>
+{% endblock %}

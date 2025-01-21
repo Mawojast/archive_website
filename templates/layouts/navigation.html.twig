@@ -1,0 +1,43 @@
+<nav class="header-nav">
+    <div class="logo-box">
+        <a href="{{path('app_home')}}" class="logo" id="archive-link">
+            <img src="{{asset('/favicon.png')}}" alt="Archivesuche Logo" id="logo-image" />
+        </a>
+        <a href="{{path('app_home')}}" id="archive-link">Archive</a>
+    </div>
+    <div class="menu">
+        <ul>
+            <li>
+                <a href="{{path('app_archive', {archive: 'spiegel'})}}" id="archive-link">Spiegel</a>
+            </li>
+            <li>
+                <a href="{{path('app_archive', {archive: 'tagesschau'})}}" id="archive-link">Tagesschau</a>
+            </li>
+        </ul>
+    </div>
+    <div id="theme-switch-desktop-box">
+        <a id="theme-switch-desktop">&#9728;</a> 
+    </div>
+    <div class="burger-menu">
+        <div class="burger-icon" id="burger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <div class="side-menu" id="side-menu">
+        <ul>
+            <li><a href="{{ path('app_archive', {archive: 'spiegel'}) }}" id="archive-link">Spiegel</a></li>
+            <li><a href="{{ path('app_archive', {archive: 'tagesschau'}) }}" id="archive-link">Tagesschau</a></li>
+            <li>
+                <div class="theme-switch">
+                    <label id="theme-switch-label"></label>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch-mobile">
+                        <span><strong id="switch-moon-icon">&#9790;</strong><strong id="switch-sun-icon">&#9728;</strong></span>
+                    </label>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
