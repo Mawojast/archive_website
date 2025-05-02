@@ -1,5 +1,8 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Data;
+
 use DateTime;
 
 class ArchiveData
@@ -23,7 +26,8 @@ class ArchiveData
         
         $this->dates['tagesschau']['min'] = $TagesschauMinDate;
         $this->dates['spiegel']['min'] = $SpiegelMinDate;
-        foreach($this->dates as $key => $value){
+
+        foreach ($this->dates as $key => $value) {
             $this->dates[$key]['max'] = $maxDate;
         }
     }

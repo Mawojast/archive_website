@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 // src/ValueResolver/IdentifierValueResolver.php
 namespace App\ValueResolver;
 

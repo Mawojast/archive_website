@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -6,7 +7,7 @@ use App\Data\ArchiveData;
 use App\DTO\ArchiveSearchDTO;
 use App\Entity\Archive;
 use App\Form\ArchiveSearchType;
-use Doctrine\ORM\EntityManagerInterface;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+use Doctrine\ORM\EntityManagerInterface;
 
 class HomeController extends AbstractController
 {
@@ -32,7 +35,7 @@ class HomeController extends AbstractController
         $session = $request->getSession();
 
         // If archiv dates in archiveData does not exist, archive does not exist
-        if(!isset($archiveData->dates[$archive])){
+        if (!isset($archiveData->dates[$archive])) {
             throw $this->createNotFoundException();
         }
 
@@ -88,7 +91,7 @@ class HomeController extends AbstractController
         // If archiv dates in archiveData does not exist, archive does not exist
         // return error response data as json, if archive dates does not exist
         $archiveData = new ArchiveData();
-        if(!isset($archiveData->dates[$archive])){
+        if (!isset($archiveData->dates[$archive])) {
             $responseData['errors']['list'][] = "Archiv nicht gefunden.";
             $responseData['errors']['count'] = count($responseData['errors']['list']);
             return new JsonResponse($responseData);
@@ -103,21 +106,21 @@ class HomeController extends AbstractController
 
         // Form validation with ArchiveSearchDTO Object
         $formErrors = $validator->validate($archiveSearchDTO);
-        if(count($formErrors) > 0) {
-            for($i = 0; $i < count($formErrors); $i++){
+        if (count($formErrors) > 0) {
+            for ($i = 0; $i < count($formErrors); $i++) {
                 $responseData['errors']['list'][] = $formErrors[$i]->getMessage();
             }
         }
         
         // swap startDate and endDate if startDate greater than endDate
-        if($archiveSearchDTO->start_date > $archiveSearchDTO->end_date){
+        if ($archiveSearchDTO->start_date > $archiveSearchDTO->end_date) {
             $tempStartDate = $archiveSearchDTO->start_date;
             $archiveSearchDTO->start_date = $archiveSearchDTO->end_date;
             $archiveSearchDTO->end_date = $tempStartDate;
         }        
 
         // Return detected errors as json format
-        if($responseData['errors']['list']){
+        if ($responseData['errors']['list']) {
             $responseData['errors']['count'] = count($responseData['errors']['list']);
             return new JsonResponse($responseData);
         }
@@ -128,7 +131,7 @@ class HomeController extends AbstractController
         $result = $archiveRepository->findArchiveWords($form->getData(), $archive);
 
         // Return error responseData as json if repository request was failed
-        if($result === false){
+        if ($result === false) {
             $responseData['errors']['list'][] = "Suche fehlgeschlagen.";
             $responseData['errors']['count'] = count($responseData['errors']['list']);
             return new JsonResponse($responseData);
@@ -141,7 +144,7 @@ class HomeController extends AbstractController
         $responseData['start_date'] = $archiveSearchDTO->start_date->format('Y-m-d');
         $responseData['end_date'] = $archiveSearchDTO->end_date->format('Y-m-d');
 
-        if($responseData['data']['max_count'] === $responseData['data']['count']){
+        if ($responseData['data']['max_count'] === $responseData['data']['count']) {
             $responseData['data']['max_count_reached']['status'] = true;
             $responseData['data']['max_count_reached']['end_date'] = $result[array_key_last($result)]['date'];
         }

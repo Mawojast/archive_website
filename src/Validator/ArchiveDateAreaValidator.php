@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Validator;
 
@@ -26,7 +27,7 @@ class ArchiveDateAreaValidator extends ConstraintValidator
 
         // Using ArchiveSearchDTO object to check the allowed date value range
         $archiveSearchDTO = $this->context->getObject();
-        if($value >= $archiveSearchDTO->minDate && $value <= $archiveSearchDTO->maxDate) {
+        if ($value >= $archiveSearchDTO->minDate && $value <= $archiveSearchDTO->maxDate) {
             return;
         }
 
