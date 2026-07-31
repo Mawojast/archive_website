@@ -1,14 +1,12 @@
 [Zur Website](https://archive.click)
 
-## Überblick
+## ArchiveClick
 
-Dies ist eine PHP-Anwendung, die auf dem Symfony-Framework basiert. Sie bietet eine robuste und flexible Grundlage für moderne Webanwendungen.
+Online-Archivsuche für die Tagesschau und den Spiegel.
 
-## Voraussetzungen
+## Tech Stack
 
 - PHP >=8.2
-- Composer
-- Unterstützte Datenbank MySQL
-- Webserver (Apache oder Nginx)
-
-
+- Symfony >=7.1
+- MySQL
+- Twig
